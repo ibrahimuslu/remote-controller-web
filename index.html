@@ -9,52 +9,74 @@
     href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
   />
   <style>
-    body {
-      background-color: #1a1a1a;
-      color: #fff;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-    .control-panel {
-      margin-top: 50px;
-    }
-    .btn-toggle {
-      width: 100%;
-      padding: 20px;
-      font-size: 1.5em;
-      margin-bottom: 20px;
-    }
-    .status-indicator {
-      font-size: 1.2em;
-      padding: 10px;
-      border-radius: 5px;
-      margin-bottom: 20px;
-    }
-    .status-high {
-      background-color: #28a745;
-    }
-    .status-low {
-      background-color: #dc3545;
-    }
-    .status-unknown {
-      background-color: #6c757d;
-    }
-    /* Responsive adjustments */
-    @media (max-width: 576px) {
-      .btn-toggle {
-        font-size: 1.2em;
-        padding: 15px;
-      }
-    }
-    .status-pulse {
-      background-color: #ffc107;
-    }
-    #mqttConfigForm {
-      display: none;
-      margin-top: 30px;
-      padding: 20px;
-      border-radius: 10px;
-      background-color: #333;
-    }
+    html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #1a1a1a;
+  color: #fff;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  height: 100%;
+}
+
+.control-panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.btn-toggle {
+  width: 100%;
+  padding: 200px;
+  font-size: 1.5em;
+  margin-bottom: 20px;
+}
+
+.status-indicator {
+  font-size: 1.2em;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
+
+.status-high {
+  background-color: #28a745;
+}
+
+.status-low {
+  background-color: #3586dc;
+}
+
+.status-unknown {
+  background-color: #6c757d;
+}
+
+
+.status-pulse {
+  background-color: #ffc107; /* Amber color to indicate pulse */
+}
+
+#mqttConfigForm {
+  display: none;
+  margin-top: 30px;
+  padding: 20px;
+  border-radius: 10px;
+  background-color: #333;
+  text-align: left;
+}
+
   </style>
 </head>
 <body>
@@ -83,7 +105,7 @@
     </div>
 
     <div class="row justify-content-center" id="controlPanel" style="display:none;">
-      <div class="col-md-12">
+      <div class="col-12">
         <!-- Status Indicator -->
         <div id="statusIndicator" class="status-indicator text-center status-unknown" style="display: block;">
           GARAJ KAPISI: UNKNOWN
@@ -218,12 +240,12 @@
             if (state === "PULSE") {
               const action = parts[2];
               if (action === "STARTED") {
-                updateStatusIndicator("PULSE STARTED");
+                updateStatusIndicator("SİNYAL GÖNDERİLDİ");
               } else if (action === "ENDED") {
-                updateStatusIndicator("LOW"); // Assuming the pin returns to LOW after the pulse
+                updateStatusIndicator("SİNYAL TAMAMLANDI"); // Assuming the pin returns to LOW after the pulse
               }
             } else {
-              updateStatusIndicator(state);
+              updateStatusIndicator("HAZIR");
             }
           }
         }
@@ -231,14 +253,14 @@
 
       // Update the status indicator based on the pin state
       function updateStatusIndicator(state) {
-        statusIndicator.textContent = `D0 State: ${state}`;
+        statusIndicator.textContent = `GARAJ KAPISI: ${state}`;
         statusIndicator.classList.remove('status-high', 'status-low', 'status-unknown', 'status-pulse');
 
         if (state === "HIGH") {
           statusIndicator.classList.add('status-high');
-        } else if (state === "LOW") {
+        } else if (state === "SİNYAL TAMAMLANDI") {
           statusIndicator.classList.add('status-low');
-        } else if (state === "PULSE STARTED") {
+        } else if (state === "SİNYAL GÖNDERİLDİ") {
           statusIndicator.classList.add('status-pulse');
         } else {
           statusIndicator.classList.add('status-unknown');
