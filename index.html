@@ -40,7 +40,7 @@
 .btn-toggle {
   width: 100%;
   padding: 200px;
-  font-size: 1.5em;
+  font-size: 5em;
   margin-bottom: 20px;
 }
 
@@ -243,6 +243,7 @@
                 updateStatusIndicator("SİNYAL GÖNDERİLDİ");
               } else if (action === "ENDED") {
                 updateStatusIndicator("SİNYAL TAMAMLANDI"); // Assuming the pin returns to LOW after the pulse
+                requestCurrentState();
               }
             } else {
               updateStatusIndicator("HAZIR");
@@ -256,7 +257,7 @@
         statusIndicator.textContent = `GARAJ KAPISI: ${state}`;
         statusIndicator.classList.remove('status-high', 'status-low', 'status-unknown', 'status-pulse');
 
-        if (state === "HIGH") {
+        if (state === "HAZIR") {
           statusIndicator.classList.add('status-high');
         } else if (state === "SİNYAL TAMAMLANDI") {
           statusIndicator.classList.add('status-low');
