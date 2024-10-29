@@ -195,12 +195,18 @@
         if (status === "connected") {
           statusIndicator.textContent = "GARAJ KAPISI: CONNECTED";
           statusIndicator.classList.add("status-connected");
+          upButton.disabled = false;
+          downButton.disabled = false;
         } else if (status === "disconnected") {
           statusIndicator.textContent = "GARAJ KAPISI: DISCONNECTED";
           statusIndicator.classList.add("status-disconnected");
+          upButton.disabled = true;
+          downButton.disabled = true;
         } else {
           statusIndicator.textContent = "GARAJ KAPISI: UNKNOWN";
           statusIndicator.classList.add("status-unknown");
+          upButton.disabled = true;
+          downButton.disabled = true;
         }
       }
 
@@ -210,7 +216,6 @@
         client.send(mqttMessage);
       }
 
-      // Add event listeners for both mouse and touch events
       function addButtonListeners(button, topic) {
         button.addEventListener("mousedown", () => {
           sendMessage(topic, "1");
@@ -242,7 +247,6 @@
         }
       }
 
-      // Add listeners to Up and Down buttons
       addButtonListeners(upButton, "device/gpio/18");
       addButtonListeners(downButton, "device/gpio/10");
 
