@@ -169,7 +169,7 @@
 
       function onConnect() {
         console.log("Connected to MQTT broker");
-        client.subscribe("device/status"); // Subscribe to device status topic
+        client.subscribe("device/status");
       }
 
       function onFailure(responseObject) {
@@ -184,8 +184,6 @@
       }
 
       function onMessageArrived(message) {
-        console.log("Message arrived on topic " + message.destinationName + ": " + message.payloadString);
-
         if (message.destinationName === "device/status") {
           updateStatusIndicator(message.payloadString);
         }
@@ -210,28 +208,43 @@
         const mqttMessage = new Paho.MQTT.Message(message);
         mqttMessage.destinationName = topic;
         client.send(mqttMessage);
-        console.log(`Sent message to ${topic}: ${message}`);
       }
 
-      upButton.addEventListener("mousedown", function () {
-        sendMessage("device/gpio/18", "1");
-        downButton.disabled = true;
-      });
+      // Add event listeners for both mouse and touch events
+      function addButtonListeners(button, topic) {
+        button.addEventListener("mousedown", () => {
+          sendMessage(topic, "1");
+          toggleButtonState(button, true);
+        });
+        button.addEventListener("mouseup", () => {
+          sendMessage(topic, "0");
+          toggleButtonState(button, false);
+        });
+        button.addEventListener("touchstart", (e) => {
+          e.preventDefault();
+          sendMessage(topic, "1");
+          toggleButtonState(button, true);
+        });
+        button.addEventListener("touchend", (e) => {
+          e.preventDefault();
+          sendMessage(topic, "0");
+          toggleButtonState(button, false);
+        });
+      }
 
-      upButton.addEventListener("mouseup", function () {
-        sendMessage("device/gpio/18", "0");
-        downButton.disabled = false;
-      });
+      function toggleButtonState(button, isPressed) {
+        if (isPressed) {
+          if (button === upButton) downButton.disabled = true;
+          if (button === downButton) upButton.disabled = true;
+        } else {
+          downButton.disabled = false;
+          upButton.disabled = false;
+        }
+      }
 
-      downButton.addEventListener("mousedown", function () {
-        sendMessage("device/gpio/10", "1");
-        upButton.disabled = true;
-      });
-
-      downButton.addEventListener("mouseup", function () {
-        sendMessage("device/gpio/10", "0");
-        upButton.disabled = false;
-      });
+      // Add listeners to Up and Down buttons
+      addButtonListeners(upButton, "device/gpio/18");
+      addButtonListeners(downButton, "device/gpio/10");
 
       window.addEventListener("beforeunload", function () {
         if (client.isConnected()) {
