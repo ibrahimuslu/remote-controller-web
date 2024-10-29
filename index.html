@@ -249,7 +249,9 @@
 
       addButtonListeners(upButton, "device/gpio/18");
       addButtonListeners(downButton, "device/gpio/10");
-
+      
+      upButton.disabled = true;
+      downButton.disabled = true;
       window.addEventListener("beforeunload", function () {
         if (client.isConnected()) {
           client.disconnect();
