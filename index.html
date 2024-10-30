@@ -2,14 +2,18 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>GARAJ ANAHTARI</title>
   <!-- Include Bootstrap CSS -->
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
   <style>
+    /* Ensure the page takes up the entire viewport and prevents scrolling */
     html, body {
-      height: 100%;
+      width: 100vw;
+      height: 100vh;
       margin: 0;
       padding: 0;
+      overflow: hidden;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -18,34 +22,70 @@
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
+    /* Container to fill full width and height */
     .container {
+      width: 100%;
+      height: 100%;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
       text-align: center;
-      height: 100%;
     }
 
+    /* Control panel centered within container */
     .control-panel {
+      width: 100%;
+      height: 100%;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
+      padding: 20px;
+      box-sizing: border-box;
     }
 
+    /* Button styles with arrows and color transition */
     .btn-toggle {
-      width: 200px;
-      padding: 20px;
+      width: 100%;
+      padding: 30px;
       font-size: 2em;
       margin-bottom: 20px;
+      max-width: 400px; /* Limit max width for larger screens */
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: background-color 0.3s;
     }
 
+    .btn-toggle.up .arrow {
+      font-size: 1.5em;
+      margin-bottom: 10px;
+      color: white;
+    }
+
+    .btn-toggle.down .arrow {
+      font-size: 1.5em;
+      margin-top: 10px;
+      color: white;
+    }
+
+    .btn-toggle.up .arrow.pressed {
+      color: #28a745; /* Green color when pressed */
+    }
+    .btn-toggle.down .arrow.pressed {
+      color: #28a745; /* Green color when pressed */
+    }
+    /* Status indicator styling */
     .status-indicator {
       font-size: 1.2em;
       padding: 10px;
       border-radius: 5px;
       margin-bottom: 20px;
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
     }
 
     .status-connected {
@@ -60,6 +100,7 @@
       background-color: #6c757d;
     }
 
+    /* Hide the MQTT config form initially */
     #mqttConfigForm {
       display: none;
       margin-top: 30px;
@@ -67,6 +108,8 @@
       border-radius: 10px;
       background-color: #333;
       text-align: left;
+      width: 90%;
+      max-width: 400px;
     }
   </style>
 </head>
@@ -95,15 +138,21 @@
       </form>
     </div>
 
-    <div class="row justify-content-center" id="controlPanel" style="display:none;">
-      <div class="col-12">
+    <div class="row justify-content-center" id="controlPanel" style="display:none; width: 100%;">
+      <div>
         <!-- Status Indicator -->
         <div id="statusIndicator" class="status-indicator text-center status-unknown">
           GARAJ KAPISI: UNKNOWN
         </div>
-        <!-- Up and Down Buttons -->
-        <button id="upButton" class="btn btn-primary btn-toggle">Up</button>
-        <button id="downButton" class="btn btn-secondary btn-toggle">Down</button>
+        <!-- Up and Down Buttons with Arrows -->
+        <button id="upButton" class="btn btn-primary btn-toggle up" disabled>
+          <span class="arrow">&#9650;</span> <!-- Up arrow -->
+          <span>Up</span>
+        </button>
+        <button id="downButton" class="btn btn-primary btn-toggle down" disabled>
+          <span>Down</span>
+          <span class="arrow">&#9660;</span> <!-- Down arrow -->
+        </button>
       </div>
     </div>
   </div>
@@ -129,7 +178,7 @@
       mqttConfigForm.style.display = 'block';
     } else {
       startMqttClient(brokerUrl, username, password);
-      controlPanel.style.display = 'block';
+      controlPanel.style.display = 'flex';
     }
 
     document.getElementById("configForm").addEventListener("submit", function (e) {
@@ -152,7 +201,7 @@
       const port = 8884;
       const clientId = "WebClient_" + Math.random().toString(16).substr(2, 8);
       const client = new Paho.MQTT.Client(brokerUrl, port, clientId);
-
+      client.status = ""
       client.onConnectionLost = onConnectionLost;
       client.onMessageArrived = onMessageArrived;
 
@@ -190,6 +239,7 @@
       }
 
       function updateStatusIndicator(status) {
+        client.status = status
         statusIndicator.classList.remove("status-connected", "status-disconnected", "status-unknown");
 
         if (status === "connected") {
@@ -239,19 +289,26 @@
 
       function toggleButtonState(button, isPressed) {
         if (isPressed) {
+
+          if(client.status == "connected"){
+            button.getElementsByTagName("span")[0].classList.add("pressed");
+            button.getElementsByTagName("span")[1].classList.add("pressed");
+          }
           if (button === upButton) downButton.disabled = true;
           if (button === downButton) upButton.disabled = true;
         } else {
-          downButton.disabled = false;
-          upButton.disabled = false;
+          button.getElementsByTagName("span")[0].classList.remove("pressed");
+          button.getElementsByTagName("span")[1].classList.remove("pressed");
+          if(client.status == "connected"){
+            downButton.disabled = false;
+            upButton.disabled = false;
+          }
         }
       }
 
       addButtonListeners(upButton, "device/gpio/18");
       addButtonListeners(downButton, "device/gpio/10");
-      
-      upButton.disabled = true;
-      downButton.disabled = true;
+
       window.addEventListener("beforeunload", function () {
         if (client.isConnected()) {
           client.disconnect();
