@@ -124,8 +124,8 @@ function startMqttClient(brokerUrl, username, password) {
     }
     }
 
-    addButtonListeners(upButton, "device/set_angle","350","285");
-    addButtonListeners(downButton, "device/set_angle","220","285");
+    addButtonListeners(upButton, "device/set_angle","000000000350","000000000285");
+    addButtonListeners(downButton, "device/set_angle","000000000220","000000000285");
 
     window.addEventListener("beforeunload", function () {
     if (client.isConnected()) {
