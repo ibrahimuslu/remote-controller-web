@@ -79,30 +79,30 @@ function startMqttClient(brokerUrl, username, password) {
     }
 
     function sendMessage(topic, message) {
-    const mqttMessage = new Paho.MQTT.Message(message);
-    mqttMessage.destinationName = topic;
-    client.send(mqttMessage);
+        const mqttMessage = new Paho.MQTT.Message(message);
+        mqttMessage.destinationName = topic;
+        client.send(mqttMessage);
     }
 
-    function addButtonListeners(button, topic) {
-    button.addEventListener("mousedown", () => {
-        sendMessage(topic, "1");
-        toggleButtonState(button, true);
-    });
-    button.addEventListener("mouseup", () => {
-        sendMessage(topic, "0");
-        toggleButtonState(button, false);
-    });
-    button.addEventListener("touchstart", (e) => {
-        e.preventDefault();
-        sendMessage(topic, "1");
-        toggleButtonState(button, true);
-    });
-    button.addEventListener("touchend", (e) => {
-        e.preventDefault();
-        sendMessage(topic, "0");
-        toggleButtonState(button, false);
-    });
+    function addButtonListeners(button, topic, value, def) {
+        button.addEventListener("mousedown", () => {
+            sendMessage(topic, value);
+            toggleButtonState(button, true);
+        });
+        button.addEventListener("mouseup", () => {
+            sendMessage(topic, def);
+            toggleButtonState(button, false);
+        });
+        button.addEventListener("touchstart", (e) => {
+            e.preventDefault();
+            sendMessage(topic, value);
+            toggleButtonState(button, true);
+        });
+        button.addEventListener("touchend", (e) => {
+            e.preventDefault();
+            sendMessage(topic, def);
+            toggleButtonState(button, false);
+        });
     }
 
     function toggleButtonState(button, isPressed) {
@@ -124,8 +124,8 @@ function startMqttClient(brokerUrl, username, password) {
     }
     }
 
-    addButtonListeners(upButton, "device/gpio/18");
-    addButtonListeners(downButton, "device/gpio/10");
+    addButtonListeners(upButton, "device/set_angle","350","285");
+    addButtonListeners(downButton, "device/set_angle","220","285");
 
     window.addEventListener("beforeunload", function () {
     if (client.isConnected()) {
